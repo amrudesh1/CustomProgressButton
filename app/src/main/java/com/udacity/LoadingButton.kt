@@ -16,7 +16,7 @@ class LoadingButton @JvmOverloads constructor(
     private var widthSize = 0
     private var heightSize = 0
     private var textToDisplay = "Download"
-    private var isDialogChecked = false
+    var startAnimation: Boolean = false
     private var padding = 10// Radius of the circle.
     private var progress = 0
     private var interpolation: Float = 0f
@@ -61,31 +61,27 @@ class LoadingButton @JvmOverloads constructor(
         }
     }
 
-    fun buttonClicked() {
-        buttonState = ButtonState.Clicked
-        invalidate()
-        Log.i("Clicked", "OnclickMethod")
-    }
-
-    fun dialogChecked(checked: Boolean) {
-        this.isDialogChecked = checked
-    }
 
     init {
         isClickable = true
 
     }
 
+    fun startAnimation() {
+        buttonState = ButtonState.Clicked
+        invalidate()
+    }
+
+    fun stopAnimation() {
+        buttonState = ButtonState.Completed
+        interpolation = 0f
+        invalidate()
+    }
+
+
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-
-        var progressEndX = (width * progress / 100f).toInt()
-
-        if (interpolation.toInt() == 100) {
-            buttonState = ButtonState.Completed
-        }
-
         val mainRectangle = widthSize.minus(padding).let {
             heightSize.minus(padding).let { it1 ->
                 Rect(
@@ -96,6 +92,13 @@ class LoadingButton @JvmOverloads constructor(
                 )
             }
         }
+
+        var progressEndX = (width * progress / 100f).toInt()
+        if (interpolation.toInt() == 100) {
+            buttonState = ButtonState.Completed
+        }
+
+
         val secondaryRectangle = progressEndX.minus(padding).let {
             heightSize.minus(padding).let { it1 ->
                 Rect(
@@ -110,7 +113,6 @@ class LoadingButton @JvmOverloads constructor(
         if (interpolation.toInt() < 100)
             canvas?.drawRect(secondaryRectangle, progressPaint)
         canvas?.drawText(textToDisplay, mainRectangle.exactCenterX() + 10, mainRectangle.exactCenterY() + 10, drawPaint)
-
 
     }
 
