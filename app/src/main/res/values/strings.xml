@@ -11,4 +11,10 @@
     <string name="button_name">Click me</string>
     <string name="button_loading">We are loading </string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="NOTIFICATION_CHANNEL_ID">Download_C</string>
+    <string name="NOTIFICATION_TITLE">DownloadStatus</string>
+    <string name="NOTIFICATION_MESSAGE">DownloadComplete</string>
+
+    <string name="download_channel_id" translatable="false">Download Channel</string>
+    <string name="download_channel_name" translatable="true">Download</string>
 </resources>

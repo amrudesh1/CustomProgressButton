@@ -7,16 +7,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -36,17 +35,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
+        notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java
+        ) as NotificationManager
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+
+
         custom_button.setOnClickListener {
             if (button_group.checkedRadioButtonId != -1) {
-                custom_button.dialogChecked(true)
                 when (button_group.checkedRadioButtonId) {
                     R.id.glide_image_loading_button -> URL = URL_1
                     R.id.retrofit_button -> URL = URL_2
                     R.id.load_app_button -> URL = URL_3
                 }
-                custom_button.buttonClicked()
+                custom_button.startAnimation()
                 download()
             } else {
                 Toast.makeText(this, "Please Select a Option", Toast.LENGTH_LONG).show()
@@ -60,12 +62,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             if (id == downloadID) {
                 Log.i("DownloadStatus", "DownloadComplete")
                 handler.removeCallbacks(runnable)
+                custom_button.stopAnimation()
+                notificationManager.sendNotification(this@MainActivity.getString(R.string.NOTIFICATION_MESSAGE), this@MainActivity)
                 Toast.makeText(this@MainActivity, "Download Completed", Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun download() {
+        notificationManager.cancelAll()
         Log.i("DownloadURL", URL)
 
         val request =
@@ -80,18 +85,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         downloadID =
                 downloadManager.enqueue(request)// enqueue puts the download request in the queue.
         Log.i("Download", "DownloadStarted")
-        val ImageDownloadQuery = DownloadManager.Query()
-        //set the query filter to our previously Enqueued download
-        //set the query filter to our previously Enqueued download
-        ImageDownloadQuery.setFilterById(downloadID)
-
-        //Query the download manager about downloads that have been requested.
-
-        //Query the download manager about downloads that have been requested.
-        val cursor = downloadManager.query(ImageDownloadQuery)
+        val FileDowloadQuery = DownloadManager.Query()
+        FileDowloadQuery.setFilterById(downloadID)
+        val cursor = downloadManager.query(FileDowloadQuery)
         if (cursor.moveToFirst()) {
-            DownloadStatus(cursor, downloadID)
-
             runnable = Runnable {
                 val bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
                 Log.i("DownloadData", "DownloadData:$bytes_downloaded")
@@ -119,60 +116,5 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         TODO("Not yet implemented")
     }
 
-
-    private fun DownloadStatus(cursor: Cursor, DownloadId: Long) {
-
-        //column for download  status
-        val columnIndex: Int = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-        val status: Int = cursor.getInt(columnIndex)
-        //column for reason code if the download failed or paused
-        val columnReason: Int = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
-        val reason: Int = cursor.getInt(columnReason)
-        //get the download filename
-        var statusText = ""
-        var reasonText = ""
-        when (status) {
-            DownloadManager.STATUS_FAILED -> {
-                statusText = "STATUS_FAILED"
-                when (reason) {
-                    DownloadManager.ERROR_CANNOT_RESUME -> reasonText = "ERROR_CANNOT_RESUME"
-                    DownloadManager.ERROR_DEVICE_NOT_FOUND -> reasonText = "ERROR_DEVICE_NOT_FOUND"
-                    DownloadManager.ERROR_FILE_ALREADY_EXISTS -> reasonText = "ERROR_FILE_ALREADY_EXISTS"
-                    DownloadManager.ERROR_FILE_ERROR -> reasonText = "ERROR_FILE_ERROR"
-                    DownloadManager.ERROR_HTTP_DATA_ERROR -> reasonText = "ERROR_HTTP_DATA_ERROR"
-                    DownloadManager.ERROR_INSUFFICIENT_SPACE -> reasonText = "ERROR_INSUFFICIENT_SPACE"
-                    DownloadManager.ERROR_TOO_MANY_REDIRECTS -> reasonText = "ERROR_TOO_MANY_REDIRECTS"
-                    DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> reasonText = "ERROR_UNHANDLED_HTTP_CODE"
-                    DownloadManager.ERROR_UNKNOWN -> reasonText = "ERROR_UNKNOWN"
-                }
-            }
-            DownloadManager.STATUS_PAUSED -> {
-                statusText = "STATUS_PAUSED"
-                when (reason) {
-                    DownloadManager.PAUSED_QUEUED_FOR_WIFI -> reasonText = "PAUSED_QUEUED_FOR_WIFI"
-                    DownloadManager.PAUSED_UNKNOWN -> reasonText = "PAUSED_UNKNOWN"
-                    DownloadManager.PAUSED_WAITING_FOR_NETWORK -> reasonText = "PAUSED_WAITING_FOR_NETWORK"
-                    DownloadManager.PAUSED_WAITING_TO_RETRY -> reasonText = "PAUSED_WAITING_TO_RETRY"
-                }
-            }
-            DownloadManager.STATUS_PENDING -> statusText = "STATUS_PENDING"
-            DownloadManager.STATUS_RUNNING -> statusText = "STATUS_RUNNING"
-            DownloadManager.STATUS_SUCCESSFUL -> {
-                statusText = "STATUS_SUCCESSFUL"
-                reasonText = "Filename:\n${button_group.checkedRadioButtonId}"
-            }
-        }
-        if (DownloadId == downloadID) {
-            val toast = Toast.makeText(this@MainActivity,
-                    """
-                        File Download Status:
-                        $statusText
-                        $reasonText
-                        """.trimIndent(),
-                    Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.TOP, 25, 400)
-            toast.show()
-        }
-    }
 
 }
