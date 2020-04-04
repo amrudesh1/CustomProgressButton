@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var downloadID: Long = 0
     lateinit var URL: String
     private lateinit var notificationManager: NotificationManager
-    private lateinit var pendingIntent: PendingIntent
-    private lateinit var action: NotificationCompat.Action
     val handler = Handler()
     lateinit var runnable: Runnable
 
