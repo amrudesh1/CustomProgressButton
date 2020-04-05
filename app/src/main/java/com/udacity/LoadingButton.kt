@@ -20,6 +20,8 @@ class LoadingButton @JvmOverloads constructor(
     private var buttonBackground = 0
     private var progressBarColor = 0
     private var textColor = 0
+    private var roundProgressColor = 0
+
 
     private var widthSize = 0
     private var heightSize = 0
@@ -47,6 +49,7 @@ class LoadingButton @JvmOverloads constructor(
             textColor = getColor(R.styleable.LoadingButton_textColor, Color.WHITE)
             buttonBackground = getColor(R.styleable.LoadingButton_buttonBackground, Color.parseColor("#00aa99"))
             progressBarColor = getColor(R.styleable.LoadingButton_progressBarColor, Color.parseColor("#00404b"))
+            roundProgressColor = getColor(R.styleable.LoadingButton_circleProgressColor, Color.YELLOW)
         }
 
     }
@@ -62,7 +65,7 @@ class LoadingButton @JvmOverloads constructor(
         // Paint styles used for rendering are initialized here. This
         // is a performance optimization, since onDraw() is called
         // for every screen refresh.
-        color = Color.YELLOW
+        color = roundProgressColor
         style = Paint.Style.FILL
         strokeWidth = stWidth
     }
