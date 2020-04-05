@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             if (id == downloadID) {
                 Log.i("DownloadStatus", "DownloadComplete")
                 handler.removeCallbacks(runnable)
-                notificationManager.sendNotification(this@MainActivity.getString(R.string.NOTIFICATION_MESSAGE), this@MainActivity)
+                notificationManager.sendNotification(this@MainActivity.getString(R.string.NOTIFICATION_MESSAGE), this@MainActivity, downloadID)
                 Toast.makeText(this@MainActivity, "Download Completed", Toast.LENGTH_LONG).show()
             }
         }
